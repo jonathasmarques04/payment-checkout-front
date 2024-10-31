@@ -1,95 +1,73 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { pixGenerator } from "@/api/pixGenerate";
+import { Box, Button, Grid2, TextField, Typography } from "@mui/material";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [amount, setAmount] = useState<number | "">("");
+  const [email, setEmail] = useState<string>("");
+  const [name, setName] = useState<string>("");
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  const handleClick = async () => {
+    if (!amount || !email || !name) {
+      alert("Preencha todos os campos");
+      return;
+    }
+
+    try {
+      const response = await pixGenerator(amount, email, name);
+      alert("Pix gerado com sucesso! Código: ");
+      window.location.href = response.data.ticket_url
+    } catch (error: any) {
+      alert("Erro ao gerar o pix: " + error.message);
+    }
+  };
+
+  return (
+    <Grid2 container spacing={2}>
+      <Box
+        sx={{
+          border: "1px solid gray",
+          borderRadius: 2,
+          width: 300,
+          padding: 5,
+          margin: "auto",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        <Typography variant="body1">Pix generator</Typography>
+        <TextField
+          variant="outlined"
+          type="number"
+          label="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value ? parseFloat(e.target.value) : "")}
+        />
+        <TextField
+          variant="outlined"
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <TextField
+          variant="outlined"
+          label="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Button
+          onClick={handleClick}
+          variant="contained"
+          sx={{ color: "blue" }}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          Gerar pix
+        </Button>
+      </Box>
+    </Grid2>
   );
 }
